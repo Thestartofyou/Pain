@@ -1,0 +1,69 @@
+import csv
+import datetime
+
+# Initialize file and headers if not already created
+filename = "pain_log.csv"
+
+# Check if the file exists; if not, create it with headers
+try:
+    open(filename, 'x').close()  # Open for exclusive creation, raises an error if file already exists
+    with open(filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Date", "Time", "Pain Level", "Pain Location", "Pain Description"])
+except FileExistsError:
+    pass  # File already exists
+
+def log_pain():
+    # Get current date and time
+    current_date = datetime.date.today().isoformat()
+    current_time = datetime.datetime.now().strftime("%H:%M:%S")
+
+    # Get user input for pain level, location, and description
+    try:
+        pain_level = int(input("On a scale of 1-10, how severe is your pain? "))
+        if pain_level < 1 or pain_level > 10:
+            raise ValueError("Pain level should be between 1 and 10.")
+    except ValueError as ve:
+        print(f"Invalid input: {ve}")
+        return
+
+    pain_location = input("Where is the pain located? ")
+    pain_description = input("Describe the pain (e.g., sharp, dull, throbbing): ")
+
+    # Write the data to the CSV file
+    with open(filename, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([current_date, current_time, pain_level, pain_location, pain_description])
+
+    print("Pain logged successfully.")
+
+def view_log():
+    # Display the entire pain log
+    try:
+        with open(filename, mode='r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                print(", ".join(row))
+    except FileNotFoundError:
+        print("No logs found. Start logging your pain levels first.")
+
+def main():
+    while True:
+        print("\nPain Monitoring System")
+        print("1. Log Pain")
+        print("2. View Pain Log")
+        print("3. Exit")
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            log_pain()
+        elif choice == '2':
+            view_log()
+        elif choice == '3':
+            print("Exiting Pain Monitoring System.")
+            break
+        else:
+            print("Invalid choice. Please select a valid option.")
+
+if __name__ == "__main__":
+    main()
